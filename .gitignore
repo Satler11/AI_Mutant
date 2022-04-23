@@ -7,7 +7,7 @@
 *.o
 *.obj
 
-*.uasset
+
 *.fbx
 
 # Precompiled Headers
