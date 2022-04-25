@@ -9,26 +9,30 @@
 
 UBTTask_Looking::UBTTask_Looking() {
 	NodeName = TEXT("Looking");
+	bNotifyTick = true;
+}
+
+uint16 UBTTask_Looking::GetInstanceMemorySize() const
+{
+	return sizeof(FBTLookingMemory);
 }
 
 EBTNodeResult::Type UBTTask_Looking::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	MyController = Cast<AMutantAIController>(OwnerComp.GetAIOwner());
-	if (!MyController) return EBTNodeResult::Failed;
+	Super::ExecuteTask(OwnerComp, NodeMemory);
+	FBTLookingMemory* CurrentMemory = reinterpret_cast<FBTLookingMemory*>(NodeMemory);
 
-	float Random = FMath::RandRange(0.0f, RandomDivation);
-	int Sign = FMath::Sign(FMath::RandRange(-1.0f, 1.0f));
-	LookTime = Duration - Sign * Random;
-	bNotifyTick = true;
+	CurrentMemory->LookTime = FMath::RandRange(Duration - RandomDivation, Duration + RandomDivation);
 	return EBTNodeResult::InProgress;
 }
 
 void UBTTask_Looking::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	TimePassed += DeltaSeconds;
-	if (TimePassed >= LookTime) {
-		TimePassed = 0.0f;
-		if (!MyController) FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+	FBTLookingMemory* CurrentMemory = reinterpret_cast<FBTLookingMemory*>(NodeMemory);
+	CurrentMemory->TimePassed += DeltaSeconds;
+	if (CurrentMemory->TimePassed >= CurrentMemory->LookTime) {
+		CurrentMemory->TimePassed = 0.0f;
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
 }
