@@ -26,11 +26,15 @@ EBTNodeResult::Type UBTTask_RotateToPoint::ExecuteTask(UBehaviorTreeComponent& O
 	CurrentMemory->Controller = Cast<AMutantAIController>(OwnerComp.GetAIOwner());
 	if (!CurrentMemory->Controller) return EBTNodeResult::Failed;
 	CurrentMemory->ControlledPawn = CurrentMemory->Controller->GetPawn();
-	
+	return InitializeRotation(OwnerComp, CurrentMemory);
+}
+
+EBTNodeResult::Type UBTTask_RotateToPoint::InitializeRotation(UBehaviorTreeComponent& OwnerComp, FBTRotateToPointMemory* CurrentMemory)
+{
 	UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent();
 	if (!CurrentMemory->ControlledPawn || !Blackboard) return EBTNodeResult::Failed;
 	CurrentMemory->Alpha = 0;
-	CurrentMemory->CurrentRotationSpeed = FMath::RandRange(RotationSpeed - RandomDivation, RotationSpeed + RandomDivation);
+	CurrentMemory->CurrentRotationSpeed = FMath::RandRange(RotationSpeed - RandomDiviation, RotationSpeed + RandomDiviation);
 
 	CurrentMemory->StartRotation = CurrentMemory->ControlledPawn->GetActorRotation().Quaternion();
 	FVector StartForwardVector = CurrentMemory->ControlledPawn->GetActorForwardVector();
@@ -43,6 +47,7 @@ EBTNodeResult::Type UBTTask_RotateToPoint::ExecuteTask(UBehaviorTreeComponent& O
 	else CurrentMemory->Controller->SetIsTurningLeft(true);
 	return EBTNodeResult::InProgress;
 }
+
 
 void UBTTask_RotateToPoint::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {

@@ -7,14 +7,14 @@
 #include "BTTask_RotateToPoint.generated.h"
 
 struct FBTRotateToPointMemory {
-	FQuat StartRotation;
-	FQuat EndRotation;
+	FQuat StartRotation;  //The inital rotation
+	FQuat EndRotation;	//Rotation at the end of the task
 
-	class APawn* ControlledPawn;
-	class AMutantAIController* Controller;
+	class APawn* ControlledPawn; //The Pawn that is controlled by the AI instance
+	class AMutantAIController* Controller; //The AI controller of this AI instance
 	
-	float Alpha;
-	float CurrentRotationSpeed;
+	float Alpha; //The current value of alpha (interpolation between StartRotation and EndRotation)
+	float CurrentRotationSpeed; //How fast the AI rotates
 };
 
 
@@ -25,10 +25,10 @@ class MUTANTAI_API UBTTask_RotateToPoint : public UBTTask_BlackboardBase
 
 public:
 	UPROPERTY(EditAnywhere)
-	float RotationSpeed;
+	float RotationSpeed; //How fast the AI rotates
 
 	UPROPERTY(EditAnywhere)
-	float RandomDivation = 0.0f;
+	float RandomDiviation = 0.0f; //Random Diviation for the rotation speed
 
 	UBTTask_RotateToPoint();
 
@@ -37,4 +37,15 @@ public:
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 	void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+
+private:
+
+	/**
+	 * Initializes all values for the rotation.
+	 *
+	 * \param OwnerComp
+	 * \param CurrentMemory the original node memory converted to FBTRotateToPointMemory
+	 * \return EBTNodeResult::InProgress if successful, EBTNodeResult::Failed otherwise
+	 */
+	EBTNodeResult::Type InitializeRotation(UBehaviorTreeComponent& OwnerComp, FBTRotateToPointMemory* CurrentMemory);
 };

@@ -3,6 +3,8 @@
 
 #include "MutantCharacter.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
+
 // Sets default values
 AMutantCharacter::AMutantCharacter()
 {
@@ -29,6 +31,16 @@ void AMutantCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void AMutantCharacter::ChangeSpeed(EState NewState)
+{
+	if (NewState == EState::Wandering) {
+		Cast<UCharacterMovementComponent>(GetMovementComponent())->MaxWalkSpeed = WanderingSpeed;
+	}
+	else if (NewState == EState::Hunting) {
+		Cast<UCharacterMovementComponent>(GetMovementComponent())->MaxWalkSpeed = HuntingSpeed;
+	}
 }
 
 void AMutantCharacter::PlayTurnMontage_Implementation(bool bIsTurningLeft)

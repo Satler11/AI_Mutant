@@ -10,8 +10,8 @@
 struct FBTLookingMemory {
 	class AMutantAIController* MyController;
 
-	float LookTime = 0.0f;
-	float TimePassed = 0.0f;
+	float LookTime = 0.0f; //How long the task runs
+	float TimePassed = 0.0f; //How much time has passed since beginning
 };
 
 UCLASS()
@@ -24,12 +24,14 @@ public:
 	UBTTask_Looking();
 
 	uint16 GetInstanceMemorySize() const override;
+
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;	
+
 	void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere)
-	float Duration = 0.0f;
+	float Duration = 0.0f; //How long the task should run
 
 	UPROPERTY(EditAnywhere)
-	float RandomDivation = 0.0f;
+	float RandomDiviation = 0.0f; //Random diviation of the tasks duration
 };

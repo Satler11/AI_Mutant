@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
+#include "MutantAIController.h"
+
 #include "MutantCharacter.generated.h"
 
 UCLASS()
@@ -21,6 +24,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void ChangeSpeed(EState NewState);
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void PlayTurnMontage(bool bIsTurningLeft);
 
@@ -30,6 +35,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+	float WanderingSpeed = 150;
 	
+	UPROPERTY(EditDefaultsOnly)
+	float HuntingSpeed = 300;
 
 };

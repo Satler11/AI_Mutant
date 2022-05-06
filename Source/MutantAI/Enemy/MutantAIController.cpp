@@ -4,6 +4,8 @@
 #include "MutantAIController.h"
 
 #include "MutantCharacter.h"
+#include "../General/ActorStorage.h"
+#include "../MutantAIGameModeBase.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 
@@ -13,6 +15,15 @@ void AMutantAIController::SetCurrentState(EState NewState)
 	if (Blackboard) {
 		Blackboard->SetValueAsEnum(TEXT("CurrentState"), CurrentState);
 	}
+	if(MutantCharacter)	MutantCharacter->ChangeSpeed(NewState);
+}
+
+TArray<AActor*> AMutantAIController::GetPlayers()
+{
+	if (ActorStorage) {
+		return ActorStorage->GetPlayers();
+	}
+	return {};
 }
 
 void AMutantAIController::BeginPlay() {
@@ -21,6 +32,11 @@ void AMutantAIController::BeginPlay() {
 		RunBehaviorTree(BehaviorTree);
 	}
 	MutantCharacter = Cast<AMutantCharacter>(GetPawn());
+	AMutantAIGameModeBase* GameMode = Cast<AMutantAIGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (GameMode) {
+		ActorStorage = GameMode->GetActorStorage();
+	}
+	
 }
 
 void AMutantAIController::SetIsTurningRight(bool bIsTurningRight_In) {

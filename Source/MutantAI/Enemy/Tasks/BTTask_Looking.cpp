@@ -22,7 +22,8 @@ EBTNodeResult::Type UBTTask_Looking::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 	FBTLookingMemory* CurrentMemory = reinterpret_cast<FBTLookingMemory*>(NodeMemory);
 
-	CurrentMemory->LookTime = FMath::RandRange(Duration - RandomDivation, Duration + RandomDivation);
+	float CurrentLookTime = FMath::RandRange(Duration - RandomDiviation, Duration + RandomDiviation);
+	CurrentMemory->LookTime = CurrentLookTime > 0 ? CurrentLookTime : 0;
 	return EBTNodeResult::InProgress;
 }
 
