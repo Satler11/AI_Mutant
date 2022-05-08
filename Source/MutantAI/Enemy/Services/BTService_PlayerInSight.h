@@ -7,13 +7,6 @@
 #include "BTService_PlayerInSight.generated.h"
 
 
-struct FBTPlayerInSightMemory {
-	class AMutantAIController* AIController; //The AIController of the AI instance
-	 
-	class APawn* ControlledPawn; //The Pawn that is controlled by the AI instance
-};
-
-
 UCLASS()
 class MUTANTAI_API UBTService_PlayerInSight : public UBTService_BlackboardBase
 {
@@ -34,11 +27,7 @@ public:
 
 	UBTService_PlayerInSight();
 
-	uint16 GetInstanceMemorySize() const override;
-
 protected:
-	void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
 	void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 	
 private:
@@ -49,6 +38,6 @@ private:
 	 * \param CurrentMemory original node memory converted to FBTPlayerInSightMemory
 	 * \return 
 	 */
-	AActor* CheckForTarget(uint8* NodeMemory, FBTPlayerInSightMemory* CurrentMemory);
+	AActor* CheckForTarget(uint8* NodeMemory, class AMutantAIController* AIController, APawn* ControlledPawn);
 
 };

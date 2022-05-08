@@ -32,6 +32,16 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void StopTurnMontage(bool bIsTurningLeft);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void PlayAttackMontage();
+
+	UFUNCTION(BlueprintCallable)
+	void OnAttackMontageEnd();
+
+	bool GetIsPlayingAttackMontage() {
+		return bIsPlayingAttackMontage;
+	}
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,5 +52,11 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	float HuntingSpeed = 300;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AttackingSpeed = 400;
+
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bIsPlayingAttackMontage = false;
 
 };

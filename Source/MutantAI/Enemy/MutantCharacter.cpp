@@ -41,6 +41,9 @@ void AMutantCharacter::ChangeSpeed(EState NewState)
 	else if (NewState == EState::Hunting) {
 		Cast<UCharacterMovementComponent>(GetMovementComponent())->MaxWalkSpeed = HuntingSpeed;
 	}
+	else if (NewState == EState::Attacking) {
+		Cast<UCharacterMovementComponent>(GetMovementComponent())->MaxWalkSpeed = AttackingSpeed;
+	}
 }
 
 void AMutantCharacter::PlayTurnMontage_Implementation(bool bIsTurningLeft)
@@ -51,6 +54,20 @@ void AMutantCharacter::PlayTurnMontage_Implementation(bool bIsTurningLeft)
 void AMutantCharacter::StopTurnMontage_Implementation(bool bIsTurningLeft)
 {
 	//Implementation in blueprint
+}
+
+void AMutantCharacter::PlayAttackMontage_Implementation() {
+	//Implementation in blueprint
+}
+
+
+void AMutantCharacter::OnAttackMontageEnd()
+{
+	bIsPlayingAttackMontage = false;
+	AMutantAIController* AIController = Cast<AMutantAIController>(GetController());
+	if (AIController) {
+		AIController->SetHasFinishedAttack(true);
+	}
 }
 
 

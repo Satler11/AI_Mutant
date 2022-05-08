@@ -6,11 +6,6 @@
 #include "BehaviorTree/Services/BTService_BlackboardBase.h"
 #include "BTService_IsInRange.generated.h"
 
-struct FBTIsInRangeMemory {
-	class AMutantAIController* AIController; //The AIController of the AI instance
-	class ACharacter* ControlledCharacter; //The Character that is controlled by the AI instance
-};
-
 /**
  * 
  */
@@ -22,11 +17,10 @@ class MUTANTAI_API UBTService_IsInRange : public UBTService_BlackboardBase
 public:
 	UBTService_IsInRange();
 
-	uint16 GetInstanceMemorySize() const override;
-
-	void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
 	void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+
+	UPROPERTY(EditAnywhere)
+	FBlackboardKeySelector IsInRangeKey;
 
 	UPROPERTY(EditAnywhere)
 	float Range; //The range in which the player is in reach
@@ -39,5 +33,5 @@ public:
 
 private: 
 
-	bool IsActorInRange(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, FBTIsInRangeMemory* CurrentMemory);
+	bool IsActorInRange(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, UBlackboardComponent* Blackboard, class AMutantAIController* AIController, class ACharacter* ControlledCharacter);
 };

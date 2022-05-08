@@ -23,6 +23,8 @@ class MUTANTAI_API AMutantAIController : public AAIController
 public:
 	void SetCurrentState(EState NewState);
 
+	void Attack();
+
 	UFUNCTION(BlueprintCallable)
 	bool GetIsTurningRight() {
 		return bIsTurningRight;
@@ -36,6 +38,15 @@ public:
 	}
 
 	void SetIsTurningLeft(bool bIsTurningLeft_In);
+
+	
+	bool GetHasFinishedAttack() {
+		return bHasFinishedAttack;
+	}
+
+	void SetHasFinishedAttack(bool bHasFinishedAttack_In) {
+		bHasFinishedAttack = bHasFinishedAttack_In;
+	}
 
 	UFUNCTION(BlueprintCallable)
 	EState GetCurrentState() {	return CurrentState; }
@@ -54,16 +65,17 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	class UBehaviorTree* BehaviorTree;
 
-	EState CurrentState = EState::Wandering;//The current state of the AI
-
-	bool bIsTurningLeft = false;//If the character is turning to the left
-	bool bIsTurningRight = false;//If the character is turning to the right
-
 	UPROPERTY()
 	class AMutantCharacter* MutantCharacter;//The controlled Character
 
 	UPROPERTY()
 	class AActorStorage* ActorStorage;
+
+	EState CurrentState = EState::Wandering;//The current state of the AI
+
+	bool bIsTurningLeft = false;//If the character is turning to the left
+	bool bIsTurningRight = false;//If the character is turning to the right
+	bool bHasFinishedAttack = false;
 
 	
 };

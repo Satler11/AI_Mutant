@@ -12,48 +12,38 @@
 
 UBTService_IsInRange::UBTService_IsInRange(){
 	NodeName = TEXT("IsActorInRange?");
-	bNotifyBecomeRelevant = true;
-}
-
-uint16 UBTService_IsInRange::GetInstanceMemorySize() const
-{
-	return sizeof(FBTIsInRangeMemory);
-}
-
-void UBTService_IsInRange::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
-{
-	FBTIsInRangeMemory* CurrentMemory = reinterpret_cast<FBTIsInRangeMemory*>(NodeMemory);
-	CurrentMemory->AIController = Cast<AMutantAIController>(OwnerComp.GetAIOwner());
-	CurrentMemory->ControlledCharacter = Cast<ACharacter>(OwnerComp.GetAIOwner()->GetPawn());
 }
 
 void UBTService_IsInRange::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	FBTIsInRangeMemory* CurrentMemory = reinterpret_cast<FBTIsInRangeMemory*>(NodeMemory);
-	if (IsActorInRange(OwnerComp, NodeMemory, CurrentMemory) && CurrentMemory->AIController) {
-		CurrentMemory->AIController->SetCurrentState(EState::Attacking);
+	AMutantAIController* AIController = Cast<AMutantAIController>(OwnerComp.GetAIOwner());
+	ACharacter* ControlledCharacter = Cast<ACharacter>(OwnerComp.GetAIOwner()->GetPawn());
+	UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent();
+	if (!Blackboard || !AIController || !ControlledCharacter) return;
+	if (IsActorInRange(OwnerComp, NodeMemory, Blackboard, AIController, ControlledCharacter)) {
+		Blackboard->SetValueAsBool(IsInRangeKey.SelectedKeyName, true);
+	}
+	else {
+		Blackboard->SetValueAsBool(IsInRangeKey.SelectedKeyName, false);
 	}
 }
 
-bool UBTService_IsInRange::IsActorInRange(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, FBTIsInRangeMemory* CurrentMemory)
+bool UBTService_IsInRange::IsActorInRange(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, UBlackboardComponent* Blackboard, AMutantAIController* AIController, ACharacter* ControlledCharacter)
 {
-	if (!CurrentMemory->ControlledCharacter) return false;
-	FVector TraceStart = CurrentMemory->ControlledCharacter->GetActorLocation();
-	TraceStart += CurrentMemory->ControlledCharacter->GetActorForwardVector() * SphereTraceOffset;
+	FVector TraceStart = ControlledCharacter->GetActorLocation();
+	TraceStart += ControlledCharacter->GetActorForwardVector() * SphereTraceOffset;
 	FVector TraceEnd = TraceStart;
 	TArray<AActor*> ActorsToIgnore;
 	TArray<FHitResult> HitResults;
 	if (bDrawDebug) UKismetSystemLibrary::SphereTraceMulti(GetWorld(), TraceStart, TraceEnd, Range, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResults, true, FLinearColor::Red, FLinearColor::Green, GetNextTickRemainingTime(NodeMemory));
 	else UKismetSystemLibrary::SphereTraceMulti(GetWorld(), TraceStart, TraceEnd, Range, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1), false, ActorsToIgnore, EDrawDebugTrace::None, HitResults, true);
 	bool bTargetInRange = false;
-	UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent();
-	if (Blackboard) {
-		AActor* TargetActor = Cast<AActor>(Blackboard->GetValueAsObject(BlackboardKey.SelectedKeyName));
-		for (FHitResult HitResult : HitResults) {
-			if (HitResult.bBlockingHit && TargetActor && HitResult.GetActor() == TargetActor) {
-				bTargetInRange = true;
-			}
+	AActor* TargetActor = Cast<AActor>(Blackboard->GetValueAsObject(BlackboardKey.SelectedKeyName));
+	for (FHitResult HitResult : HitResults) {
+		if (HitResult.bBlockingHit && TargetActor && HitResult.GetActor() == TargetActor) {
+			bTargetInRange = true;
 		}
 	}
+	
 	return bTargetInRange;
 }

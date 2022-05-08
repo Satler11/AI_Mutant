@@ -9,20 +9,6 @@
 
 UBTService_PlayerInSight::UBTService_PlayerInSight() {
 	NodeName = TEXT("IsActorInSight");
-	bNotifyBecomeRelevant = true;
-}
-
-uint16 UBTService_PlayerInSight::GetInstanceMemorySize() const
-{
-	return sizeof(FBTPlayerInSightMemory);
-}
-
-void UBTService_PlayerInSight::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
-{
-	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
-	FBTPlayerInSightMemory* CurrentMemory = reinterpret_cast<FBTPlayerInSightMemory*>(NodeMemory);
-	CurrentMemory->AIController = Cast<AMutantAIController>(OwnerComp.GetAIOwner());
-	CurrentMemory->ControlledPawn = OwnerComp.GetAIOwner()->GetPawn();
 }
 
 
@@ -30,30 +16,27 @@ void UBTService_PlayerInSight::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	FBTPlayerInSightMemory* CurrentMemory = reinterpret_cast<FBTPlayerInSightMemory*>(NodeMemory);
-	if (!CurrentMemory->ControlledPawn) return;
-	AActor* Target = CheckForTarget(NodeMemory, CurrentMemory);
+	AMutantAIController* AIController = Cast<AMutantAIController>(OwnerComp.GetAIOwner());
+	APawn* ControlledPawn = OwnerComp.GetAIOwner()->GetPawn();
+	if (!ControlledPawn || !AIController) return;
+	AActor* Target = CheckForTarget(NodeMemory, AIController, ControlledPawn);
 	if (Target) {
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(BlackboardKey.SelectedKeyName, Target);
-		if(CurrentMemory->AIController)	CurrentMemory->AIController->SetCurrentState(EState::Hunting);
-		UE_LOG(LogTemp, Warning, TEXT("HUNGTING"));
+		AIController->SetCurrentState(EState::Hunting);
 	}
 }
 
-AActor* UBTService_PlayerInSight::CheckForTarget(uint8* NodeMemory, FBTPlayerInSightMemory* CurrentMemory)
+AActor* UBTService_PlayerInSight::CheckForTarget(uint8* NodeMemory, AMutantAIController* AIController, APawn* ControlledPawn)
 {	
 	FColor Color = FColor::Red;
-	if (!CurrentMemory->AIController) return nullptr;
-
-	FVector Start = CurrentMemory->ControlledPawn->GetActorLocation();
-	FVector ForwardVector = CurrentMemory->ControlledPawn->GetActorForwardVector();
+	FVector Start =ControlledPawn->GetActorLocation();
+	FVector ForwardVector = ControlledPawn->GetActorForwardVector();
 
 	AActor* Target = nullptr;
-	for (AActor* Player : CurrentMemory->AIController->GetPlayers()) {
+	for (AActor* Player : AIController->GetPlayers()) {
 		FVector PlayerLocation = Player->GetActorLocation();
 		FVector PlayerFacingVector = (PlayerLocation - Start).GetSafeNormal();
 		float PlayerAngle = FMath::Abs(FMath::Acos(FVector::DotProduct(ForwardVector, PlayerFacingVector)));
-		UE_LOG(LogTemp, Warning, TEXT("Player Angle: %f"), FMath::RadiansToDegrees(PlayerAngle));
 		if (FMath::RadiansToDegrees(PlayerAngle) > ViewConeAngle) continue;
 		FHitResult HitResult;
 		bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start + PlayerFacingVector * 40, Start + PlayerFacingVector * Distance, ECollisionChannel::ECC_Camera);

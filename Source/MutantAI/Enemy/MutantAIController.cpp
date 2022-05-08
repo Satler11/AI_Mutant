@@ -18,6 +18,14 @@ void AMutantAIController::SetCurrentState(EState NewState)
 	if(MutantCharacter)	MutantCharacter->ChangeSpeed(NewState);
 }
 
+void AMutantAIController::Attack()
+{
+	if (MutantCharacter && !MutantCharacter->GetIsPlayingAttackMontage()) {
+		UE_LOG(LogTemp, Warning, TEXT("Attacking"));
+		MutantCharacter->PlayAttackMontage();
+	}
+}
+
 TArray<AActor*> AMutantAIController::GetPlayers()
 {
 	if (ActorStorage) {
