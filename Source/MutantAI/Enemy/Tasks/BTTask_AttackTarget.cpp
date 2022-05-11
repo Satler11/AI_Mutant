@@ -31,7 +31,6 @@ void UBTTask_AttackTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 			Blackboard->SetValueAsFloat(BlackboardKey.SelectedKeyName, CooldownTime);
 		}
 		Controller->SetHasFinishedAttack(false);
-		UE_LOG(LogTemp, Warning, TEXT("FINISHED"));
 		Controller->SetCurrentState(EState::Hunting);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}

@@ -22,9 +22,17 @@ public:
 	 * \param PlayerClass The class that is used by all player instances
 	 */
 	void Setup(UWorld* World, TSubclassOf<AActor> PlayerClass);
+
+	void AddEnemy(AActor* Enemy);
+
+	void RemoveEnemy(AActor* Enemy);
 	
 	TArray<AActor*> GetPlayers() {
 		return Players;
+	}
+
+	TArray<AActor*> GetEnemies() {
+		return Enemies;
 	}
 
 	
@@ -36,5 +44,8 @@ protected:
 private:
 	UPROPERTY()
 	TArray<AActor*> Players;//All AActors of the specified player class
+
+	UPROPERTY()
+	TArray<AActor*> Enemies;
 
 };

@@ -21,6 +21,18 @@ void AActorStorage::Setup(UWorld* World, TSubclassOf<AActor> PlayerClass)
 	}
 }
 
+void AActorStorage::AddEnemy(AActor* Enemy)
+{
+	if (!Enemy) return;
+	Enemies.Add(Enemy);
+}
+
+void AActorStorage::RemoveEnemy(AActor* Enemy)
+{
+	if (!Enemy) return;
+	Enemies.Remove(Enemy);
+}
+
 // Called when the game starts or when spawned
 void AActorStorage::BeginPlay()
 {

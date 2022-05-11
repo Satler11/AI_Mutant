@@ -9,31 +9,6 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 
-void AMutantAIController::SetCurrentState(EState NewState)
-{
-	CurrentState = NewState;
-	if (Blackboard) {
-		Blackboard->SetValueAsEnum(TEXT("CurrentState"), CurrentState);
-	}
-	if(MutantCharacter)	MutantCharacter->ChangeSpeed(NewState);
-}
-
-void AMutantAIController::Attack()
-{
-	if (MutantCharacter && !MutantCharacter->GetIsPlayingAttackMontage()) {
-		UE_LOG(LogTemp, Warning, TEXT("Attacking"));
-		MutantCharacter->PlayAttackMontage();
-	}
-}
-
-TArray<AActor*> AMutantAIController::GetPlayers()
-{
-	if (ActorStorage) {
-		return ActorStorage->GetPlayers();
-	}
-	return {};
-}
-
 void AMutantAIController::BeginPlay() {
 	Super::BeginPlay();
 	if (BehaviorTree) {
@@ -43,8 +18,43 @@ void AMutantAIController::BeginPlay() {
 	AMutantAIGameModeBase* GameMode = Cast<AMutantAIGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (GameMode) {
 		ActorStorage = GameMode->GetActorStorage();
+		ActorStorage->AddEnemy(GetPawn());
 	}
-	
+
+}
+
+void AMutantAIController::SetCurrentState(EState NewState)
+{
+	CurrentState = NewState;
+	MutantCharacter->StopTurnMontage(true);
+	MutantCharacter->StopTurnMontage(false);
+	if (Blackboard) {
+		Blackboard->SetValueAsEnum(TEXT("CurrentState"), CurrentState);
+	}
+	if(MutantCharacter)	MutantCharacter->ChangeSpeed(NewState);
+}
+
+void AMutantAIController::Attack()
+{
+	if (MutantCharacter && !MutantCharacter->GetIsPlayingAttackMontage()) {
+		MutantCharacter->PlayAttackMontage();
+	}
+}
+
+TArray<AActor*> AMutantAIController::GetPlayers()
+{
+	if (ActorStorage) {
+		return ActorStorage->GetPlayers();
+	}
+	return TArray<AActor*>();
+}
+
+TArray<AActor*> AMutantAIController::GetAllEnemies()
+{
+	if (ActorStorage) {
+		return ActorStorage->GetEnemies();
+	}
+	return TArray<AActor*>();
 }
 
 void AMutantAIController::SetIsTurningRight(bool bIsTurningRight_In) {

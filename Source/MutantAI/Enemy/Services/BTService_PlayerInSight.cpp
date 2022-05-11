@@ -6,6 +6,7 @@
 #include "../MutantAIController.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 UBTService_PlayerInSight::UBTService_PlayerInSight() {
 	NodeName = TEXT("IsActorInSight");
@@ -39,7 +40,8 @@ AActor* UBTService_PlayerInSight::CheckForTarget(uint8* NodeMemory, AMutantAICon
 		float PlayerAngle = FMath::Abs(FMath::Acos(FVector::DotProduct(ForwardVector, PlayerFacingVector)));
 		if (FMath::RadiansToDegrees(PlayerAngle) > ViewConeAngle) continue;
 		FHitResult HitResult;
-		bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start + PlayerFacingVector * 40, Start + PlayerFacingVector * Distance, ECollisionChannel::ECC_Camera);
+		TArray<AActor*> ActorsToIgnore = AIController->GetAllEnemies();
+		bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), Start + PlayerFacingVector * 40, Start + PlayerFacingVector * Distance, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Camera), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
 		if (bHit && HitResult.GetActor()->IsA(PlayerClass)) {
 			Color = FColor::Green;
 			Start = Start + PlayerFacingVector * 40;

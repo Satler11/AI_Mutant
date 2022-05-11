@@ -38,7 +38,7 @@ void AMutantCharacter::ChangeSpeed(EState NewState)
 	if (NewState == EState::Wandering) {
 		Cast<UCharacterMovementComponent>(GetMovementComponent())->MaxWalkSpeed = WanderingSpeed;
 	}
-	else if (NewState == EState::Hunting) {
+	else if (NewState == EState::Hunting || NewState == EState::Tracking) {
 		Cast<UCharacterMovementComponent>(GetMovementComponent())->MaxWalkSpeed = HuntingSpeed;
 	}
 	else if (NewState == EState::Attacking) {

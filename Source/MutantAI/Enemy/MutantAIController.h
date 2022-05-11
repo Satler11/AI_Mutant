@@ -11,6 +11,8 @@ enum EState {
 	Wandering	UMETA(DisplayName = "Wandering"),
 	Hunting		UMETA(DisplayName = "Hunting"),
 	Attacking	UMETA(DisplayName = "Attacking"),
+	Inspecting	UMETA(DisplayName = "Inspecting"),
+	Tracking	UMETA(DisplayName = "Tracking"),
 };
 /**
  * 
@@ -57,6 +59,8 @@ public:
 	 * \return TArray with all AActors of the defined player class in the GameMode
 	 */
 	TArray<AActor*> GetPlayers();
+
+	TArray<AActor*> GetAllEnemies();
 
 protected:
 	void BeginPlay() override;
