@@ -21,9 +21,22 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+	bool GetCanFire() const {
+		return bCanFire;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void SetCanFire(bool bCanFire_In) {
+		bCanFire = bCanFire_In;
+	}
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintNativeEvent)
+	void PlayFiringMontage();
 
 private:
 	UPROPERTY(EditDefaultsOnly)
@@ -32,6 +45,11 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	class UCameraComponent* CameraComponent;
 
+	UPROPERTY()
+	bool bCanFire = true;
+
+	bool bIsFiring = false;
+
 	void MoveForward(float AxisValue);
 
 	void MoveRight(float AxisValue);
@@ -39,4 +57,10 @@ private:
 	void Turn(float AxisValue);
 
 	void LookUp(float AxisValue);
+
+	void StartFiring();
+
+	void StopFiring();
+
+	
 };

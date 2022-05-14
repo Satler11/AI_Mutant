@@ -3,6 +3,7 @@
 
 #include "PlayerCharacter.h"
 
+#include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 
@@ -13,7 +14,7 @@ APlayerCharacter::APlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	SpringArmComponent->SetupAttachment(GetMesh());
+	SpringArmComponent->SetupAttachment(GetMesh(), FName(TEXT("CameraSocket")));
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
@@ -24,12 +25,16 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	SpringArmComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("CameraSocket")));
 	
 }
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (bIsFiring) {
+		PlayFiringMontage();
+	}
 
 }
 
@@ -37,6 +42,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &APlayerCharacter::StartFiring);
+	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Released, this, &APlayerCharacter::StopFiring);
+
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &APlayerCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &APlayerCharacter::Turn);
@@ -62,6 +70,20 @@ void APlayerCharacter::Turn(float AxisValue)
 void APlayerCharacter::LookUp(float AxisValue)
 {
 	AddControllerPitchInput(AxisValue);
+}
+
+void APlayerCharacter::StartFiring()
+{
+	bIsFiring = true;
+}
+
+void APlayerCharacter::StopFiring()
+{
+	bIsFiring = false;
+}
+
+void APlayerCharacter::PlayFiringMontage_Implementation()
+{
 }
 
 
