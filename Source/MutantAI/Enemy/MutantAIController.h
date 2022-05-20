@@ -65,6 +65,8 @@ public:
 
 	void Die();
 
+	void HandleHit(AActor* DamageCauser);
+
 	void DeleteActor();
 
 protected:

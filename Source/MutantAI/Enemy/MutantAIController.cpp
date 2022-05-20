@@ -74,6 +74,13 @@ void AMutantAIController::Die()
 	GetWorldTimerManager().SetTimer(DeathHandle, this, &AMutantAIController::DeleteActor, 1, false, TimeTillDelete);
 }
 
+void AMutantAIController::HandleHit(AActor* DamageCauser)
+{
+	SetCurrentState(EState::Inspecting);
+	Blackboard->SetValueAsVector(TEXT("WanderLocation"), DamageCauser->GetActorLocation());
+
+}
+
 void AMutantAIController::SetIsTurningRight(bool bIsTurningRight_In) {
 	if (bIsTurningRight && !bIsTurningRight_In && MutantCharacter)
 		MutantCharacter->StopTurnMontage(false);

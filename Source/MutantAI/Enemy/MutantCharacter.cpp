@@ -36,7 +36,9 @@ void AMutantCharacter::HandleDamage(AActor* DamagedActor, float Damage, const UD
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	}
 	else {
-		//Take damage Anime
+		PlayGetHitMontage();
+		AMutantAIController* MyController = Cast<AMutantAIController>(GetController());
+		if (MyController) MyController->HandleHit(DamageCauser);
 	}
 }
 
@@ -58,7 +60,7 @@ void AMutantCharacter::ChangeSpeed(EState NewState)
 	if (NewState == EState::Wandering) {
 		Cast<UCharacterMovementComponent>(GetMovementComponent())->MaxWalkSpeed = WanderingSpeed;
 	}
-	else if (NewState == EState::Hunting || NewState == EState::Tracking) {
+	else if (NewState == EState::Hunting || NewState == EState::Tracking || NewState == EState::Inspecting) {
 		Cast<UCharacterMovementComponent>(GetMovementComponent())->MaxWalkSpeed = HuntingSpeed;
 	}
 	else if (NewState == EState::Attacking) {
@@ -83,6 +85,10 @@ void AMutantCharacter::PlayAttackMontage_Implementation() {
 	//Implementation in blueprint
 }
 
+
+void AMutantCharacter::PlayGetHitMontage_Implementation() {
+	//Implementation in blueprint
+}
 
 void AMutantCharacter::OnAttackMontageEnd()
 {

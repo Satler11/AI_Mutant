@@ -35,6 +35,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void PlayAttackMontage();
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void PlayGetHitMontage();
+
 	UFUNCTION(BlueprintCallable)
 	void OnAttackMontageEnd();
 

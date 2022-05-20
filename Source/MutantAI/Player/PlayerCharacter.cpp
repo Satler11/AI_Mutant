@@ -19,6 +19,12 @@ APlayerCharacter::APlayerCharacter()
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->SetupAttachment(GetMesh(), FName(TEXT("CameraSocket")));
 
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
+	WeaponMesh->SetupAttachment(GetMesh(), FName(TEXT("R_weapon")));
+
+	ShootTraceOrigin = CreateDefaultSubobject<USceneComponent>(TEXT("ShootTraceOrigin"));
+	ShootTraceOrigin->SetupAttachment(WeaponMesh, FName(TEXT("MuzzleSocket")));
+
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
@@ -31,8 +37,9 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	SpringArmComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("CameraSocket")));
-	
+	SpringArmComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform,TEXT("CameraSocket"));
+	WeaponMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("R_weapon"));
+	ShootTraceOrigin->AttachToComponent(WeaponMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("MuzzleSocket"));
 }
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
@@ -100,7 +107,7 @@ void APlayerCharacter::Shoot()
 		FHitResult HitResult;
 		TArray<AActor*> ActorsToIgnore;
 		ActorsToIgnore.Add(this);
-		bool bHasHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), CameraComponent->GetComponentLocation(), CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * ShootingDistance,
+		bool bHasHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), ShootTraceOrigin->GetComponentLocation(), ShootTraceOrigin->GetComponentLocation() + CameraComponent->GetForwardVector() * ShootingDistance,
 			UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Camera), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true);
 		if (bHasHit) {
 			ACharacter* Character = Cast<ACharacter>(HitResult.GetActor());
