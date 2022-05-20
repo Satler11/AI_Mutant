@@ -13,6 +13,7 @@ enum EState {
 	Attacking	UMETA(DisplayName = "Attacking"),
 	Inspecting	UMETA(DisplayName = "Inspecting"),
 	Tracking	UMETA(DisplayName = "Tracking"),
+	Dying		UMETA(DisplayName = "Dying"),
 };
 /**
  * 
@@ -62,12 +63,19 @@ public:
 
 	TArray<AActor*> GetAllEnemies();
 
+	void Die();
+
+	void DeleteActor();
+
 protected:
 	void BeginPlay() override;
 
 private:
 	UPROPERTY(EditDefaultsOnly)
 	class UBehaviorTree* BehaviorTree;
+
+	UPROPERTY(EditDefaultsOnly)
+	float TimeTillDelete = 10;
 
 	UPROPERTY()
 	class AMutantCharacter* MutantCharacter;//The controlled Character
@@ -81,5 +89,6 @@ private:
 	bool bIsTurningRight = false;//If the character is turning to the right
 	bool bHasFinishedAttack = false;
 
+	FTimerHandle DeathHandle;
 	
 };

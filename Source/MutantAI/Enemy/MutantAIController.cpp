@@ -9,6 +9,13 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 
+void AMutantAIController::DeleteActor()
+{
+	GetPawn()->Destroy();
+	Destroy();
+	UE_LOG(LogTemp, Warning, TEXT("DESTROYED"));
+}
+
 void AMutantAIController::BeginPlay() {
 	Super::BeginPlay();
 	if (BehaviorTree) {
@@ -25,6 +32,7 @@ void AMutantAIController::BeginPlay() {
 
 void AMutantAIController::SetCurrentState(EState NewState)
 {
+	if (CurrentState == EState::Dying) return;
 	CurrentState = NewState;
 	MutantCharacter->StopTurnMontage(true);
 	MutantCharacter->StopTurnMontage(false);
@@ -32,6 +40,7 @@ void AMutantAIController::SetCurrentState(EState NewState)
 		Blackboard->SetValueAsEnum(TEXT("CurrentState"), CurrentState);
 	}
 	if(MutantCharacter)	MutantCharacter->ChangeSpeed(NewState);
+	if (CurrentState == EState::Dying) Die();
 }
 
 void AMutantAIController::Attack()
@@ -57,6 +66,14 @@ TArray<AActor*> AMutantAIController::GetAllEnemies()
 	return TArray<AActor*>();
 }
 
+void AMutantAIController::Die()
+{
+	ActorStorage->RemoveEnemy(GetPawn());
+	StopMovement();
+	ClearFocus(EAIFocusPriority::Gameplay);
+	GetWorldTimerManager().SetTimer(DeathHandle, this, &AMutantAIController::DeleteActor, 1, false, TimeTillDelete);
+}
+
 void AMutantAIController::SetIsTurningRight(bool bIsTurningRight_In) {
 	if (bIsTurningRight && !bIsTurningRight_In && MutantCharacter)
 		MutantCharacter->StopTurnMontage(false);
@@ -73,4 +90,3 @@ void AMutantAIController::SetIsTurningLeft(bool bIsTurningLeft_In) {
 
 	bIsTurningLeft = bIsTurningLeft_In;
 }
-

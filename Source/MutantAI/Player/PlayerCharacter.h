@@ -31,6 +31,11 @@ public:
 		bCanFire = bCanFire_In;
 	}
 
+	UFUNCTION(BlueprintCallable)
+	bool GetIsAiming() const {
+		return bIsAiming;
+	}
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -38,17 +43,34 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void PlayFiringMontage();
 
+	UFUNCTION(BlueprintNativeEvent)
+	void StartAiming();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void StopAiming();
+
 private:
 	UPROPERTY(EditDefaultsOnly)
 	class USpringArmComponent* SpringArmComponent;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UAudioComponent* GunAudioComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float ShootingDistance = 1500;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float ShootingCooldown = 0.2;
 
 	UPROPERTY()
 	bool bCanFire = true;
 
 	bool bIsFiring = false;
+
+	bool bIsAiming = false;
 
 	void MoveForward(float AxisValue);
 
@@ -58,9 +80,9 @@ private:
 
 	void LookUp(float AxisValue);
 
-	void StartFiring();
+	void ToggleFiring();
 
-	void StopFiring();
-
+	void ToggleAiming();
 	
+	void Shoot();
 };

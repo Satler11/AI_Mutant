@@ -48,6 +48,9 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly)
+	class UHealthComponent* HealthComponent;
+
+	UPROPERTY(EditDefaultsOnly)
 	float WanderingSpeed = 150;
 	
 	UPROPERTY(EditDefaultsOnly)
@@ -58,5 +61,8 @@ private:
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bIsPlayingAttackMontage = false;
+
+	UFUNCTION()
+	void HandleDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 };

@@ -3,9 +3,12 @@
 
 #include "PlayerCharacter.h"
 
+
+#include "Components/AudioComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -18,6 +21,9 @@ APlayerCharacter::APlayerCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	GunAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("GunAudioComponent"));
+	GunAudioComponent->SetupAttachment(RootComponent);
 
 }
 
@@ -33,7 +39,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (bIsFiring) {
-		PlayFiringMontage();
+		Shoot();
 	}
 
 }
@@ -42,8 +48,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &APlayerCharacter::StartFiring);
-	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Released, this, &APlayerCharacter::StopFiring);
+	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleFiring);
+	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Released, this, &APlayerCharacter::ToggleFiring);
+
+	PlayerInputComponent->BindAction(TEXT("Aim"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ToggleAiming);
+	PlayerInputComponent->BindAction(TEXT("Aim"), EInputEvent::IE_Released, this, &APlayerCharacter::ToggleAiming);
 
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &APlayerCharacter::MoveRight);
@@ -72,18 +81,45 @@ void APlayerCharacter::LookUp(float AxisValue)
 	AddControllerPitchInput(AxisValue);
 }
 
-void APlayerCharacter::StartFiring()
+void APlayerCharacter::ToggleFiring()
 {
-	bIsFiring = true;
+	bIsFiring = !bIsFiring;
 }
 
-void APlayerCharacter::StopFiring()
+void APlayerCharacter::ToggleAiming()
 {
-	bIsFiring = false;
+	bIsAiming = !bIsAiming;
+	if (bIsAiming) StartAiming();
+	else StopAiming();
+}
+
+void APlayerCharacter::Shoot()
+{
+	if (bCanFire) {
+		PlayFiringMontage();
+		FHitResult HitResult;
+		TArray<AActor*> ActorsToIgnore;
+		ActorsToIgnore.Add(this);
+		bool bHasHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), CameraComponent->GetComponentLocation(), CameraComponent->GetComponentLocation() + CameraComponent->GetForwardVector() * ShootingDistance,
+			UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Camera), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true);
+		if (bHasHit) {
+			ACharacter* Character = Cast<ACharacter>(HitResult.GetActor());
+			if (Character) Character->TakeDamage(10, FDamageEvent(), nullptr, this);
+		}
+	}
 }
 
 void APlayerCharacter::PlayFiringMontage_Implementation()
 {
 }
+
+void APlayerCharacter::StartAiming_Implementation()
+{
+}
+
+void APlayerCharacter::StopAiming_Implementation()
+{
+}
+
 
 
