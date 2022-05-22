@@ -28,12 +28,13 @@ void AMutantCharacter::BeginPlay()
 
 void AMutantCharacter::HandleDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Damaged"));
 	HealthComponent->ReduceHealth(int(Damage));
 	if (HealthComponent->GetCurrentHealth() <= 0) {
 		AMutantAIController* MyController = Cast<AMutantAIController>(GetController());
 		if (MyController) MyController->SetCurrentState(EState::Dying);
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+		GetCharacterMovement()->SetAvoidanceEnabled(false);
 	}
 	else {
 		PlayGetHitMontage();
