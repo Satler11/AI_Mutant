@@ -65,6 +65,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* ShootTraceOrigin;
 
+	UPROPERTY(EditDefaultsOnly)
+	class USphereComponent* ShootSoundTrigger;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float ShootingDistance = 1500;
 

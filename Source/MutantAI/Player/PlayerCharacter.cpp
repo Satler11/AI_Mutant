@@ -3,8 +3,11 @@
 
 #include "PlayerCharacter.h"
 
+#include "../Enemy/MutantCharacter.h"
+#include "../Enemy/MutantAIController.h"
 
 #include "Components/AudioComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -30,6 +33,9 @@ APlayerCharacter::APlayerCharacter()
 
 	GunAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("GunAudioComponent"));
 	GunAudioComponent->SetupAttachment(RootComponent);
+
+	ShootSoundTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("ShootSoundTrigger"));
+	ShootSoundTrigger->SetupAttachment(RootComponent);
 
 }
 
@@ -109,10 +115,21 @@ void APlayerCharacter::Shoot()
 		ActorsToIgnore.Add(this);
 		bool bHasHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), ShootTraceOrigin->GetComponentLocation(), ShootTraceOrigin->GetComponentLocation() + CameraComponent->GetForwardVector() * ShootingDistance,
 			UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Camera), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResult, true);
+		ACharacter* HitActor = nullptr;
 		if (bHasHit) {
-			ACharacter* Character = Cast<ACharacter>(HitResult.GetActor());
-			if (Character) Character->TakeDamage(10, FDamageEvent(), nullptr, this);
+			HitActor = Cast<ACharacter>(HitResult.GetActor());
+			if (HitActor) HitActor->TakeDamage(10, FDamageEvent(), nullptr, this);
 		}
+		TSet<AActor*> EnemiesInRange;
+		ShootSoundTrigger->GetOverlappingActors(EnemiesInRange, AMutantCharacter::StaticClass());
+		for (AActor* CurrentEnemy : EnemiesInRange) {
+			AMutantCharacter* CurrentCharacter = Cast<AMutantCharacter>(CurrentEnemy);
+			AMutantAIController* CurrentController = Cast<AMutantAIController>(CurrentCharacter->GetController());
+			if (CurrentController && CurrentCharacter != HitActor) {
+				CurrentController->InspectNoise(this);
+			}
+		}
+		
 	}
 }
 

@@ -81,6 +81,14 @@ void AMutantAIController::HandleHit(AActor* DamageCauser)
 
 }
 
+void AMutantAIController::InspectNoise(AActor* NoiseSource)
+{
+	if (CurrentState == EState::Wandering || CurrentState == EState::Inspecting) {
+		SetCurrentState(EState::Inspecting);
+		Blackboard->SetValueAsVector(TEXT("WanderLocation"), NoiseSource->GetActorLocation());
+	}
+}
+
 void AMutantAIController::SetIsTurningRight(bool bIsTurningRight_In) {
 	if (bIsTurningRight && !bIsTurningRight_In && MutantCharacter)
 		MutantCharacter->StopTurnMontage(false);

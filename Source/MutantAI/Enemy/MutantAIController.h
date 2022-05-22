@@ -67,6 +67,8 @@ public:
 
 	void HandleHit(AActor* DamageCauser);
 
+	void InspectNoise(AActor* NoiseSource);
+
 	void DeleteActor();
 
 protected:
